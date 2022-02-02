@@ -3,9 +3,12 @@ import random
 import os
 # playerRuns = random.randint(0,120)
 # playerBowls = round((100/random.randint(90,250))*playerRuns)
-a = {43:28,13:14,59:33,21:16,4:5,7:4,38:29,42:22,9:8,2:5,4:6}
+global aCtual,overs,newWicket
+a = {43:19,13:14,59:33,21:16,4:5,7:4,38:29,42:22,9:8,2:5,4:6}
 aCtual = {}
 bowls = 0
+overs = {}
+newWicket = False
 for playerRuns,playerBowls in a.items():
     boundariesPercentage = [random.randint(30,60),random.randint(20,40),random.randint(14,25),random.randint(1,3),random.randint(8,20),random.randint(2,8)]
     def clearit():
@@ -84,80 +87,81 @@ for playerRuns,playerBowls in a.items():
             if i == m:
                 mCount+=1
         return round((mCount/len(n))*100)
-    overs = {}
         
     overRuns = 0
 
     tempIs = False
-    while bowls<=120:
-        try:
-            playerApproach1 = giveVar()
-            # print(playerApproach1)
-            random.shuffle(playerApproach1)
-            if player[1]%6 == 0 and player[1]!=0 and tempIs==False:
-                bowlerName = input("Enter the name of the bowler that bowled previous over: ")
-                try:
-                    overs[bowlerName] = [overs[bowlerName][0]+overRuns,overs[bowlerName][1]+1]
+    while bowls<=36:
+        playerApproach1 = giveVar()
+        random.shuffle(playerApproach1)
+        print(aCtual)
+        print(overs)
+        print(newWicket)
+        if player[1]%6 == 0 and player[1]!=0 and tempIs==False:
+            bowlerName = input("Enter the name of the bowler that bowled previous over: ")
+            try:
+                if newWicket == True:
+                    overs[bowlerName] = [overs[bowlerName][0]+overRuns,overs[bowlerName][1]+1,overs[bowlerName][2]+1]
                     overRuns = 0
-                except:
-                    overs[bowlerName] = [overRuns,1]
+                    newWicket = False
+                elif newWicket == False:
+                    overs[bowlerName] = [overs[bowlerName][0]+overRuns,overs[bowlerName][1]+1,overs[bowlerName][2]]
+            except:
+                if newWicket == True:
+                    overs[bowlerName] = [overRuns,1,1]
+                    newWicket = False
                     overRuns = 0
+                elif newWicket == False:
+                    overs[bowlerName] = [overRuns,1,0]
+                    overRuns=0
         
-            userChoice = int(input("enter your bowling choice: "))
-            os.system("clear")
+        userChoice = int(input("enter your bowling choice: "))
+        os.system("clear")
+        
+        if len(bowler)>4 and checkPercentage(bowler,userChoice) > 30:
+            print(f"Can't bowl {userChoice} rn\nTry another number")
+            tempIs = True
+        else:
+            bowler.append(userChoice)
             
-            if len(bowler)>4 and checkPercentage(bowler,userChoice) > 30:
-                print(f"Can't bowl {userChoice} rn\nTry another number")
-                tempIs = True
+            if userChoice>6 or userChoice<1 or userChoice==5:
+                continue
             else:
-                bowler.append(userChoice)
-                
-                if userChoice>6 or userChoice<1 or userChoice==5:
-                    continue
-                else:
-                    playerChoice = ""
-                    try:
-                        playerChoice = random.choice(playerApproach1)
-                    except:
-                        playerApproach1 = giveVar()
-                        playerChoice = random.choice(playerApproach1)
+                playerChoice = ""
+                try:
+                    playerChoice = random.choice(playerApproach1)
+                except:
+                    playerApproach1 = giveVar()
+                    playerChoice = random.choice(playerApproach1)
 
-                    playerApproach1.remove(playerChoice)
-                    if userChoice == playerChoice:
-                        playerLifes-=1
-                        if playerLifes==0:
-                            print(f"Player out!\nPlayer runs and bowls{player}\nPlayer boundaries: {choices}")  
-                            tempIs = False
-                            aCtual[player[0]] = player[1]
-                            bowls+=1
-                            bowlerName = input("Enter the name of the bowler that bowled previous over: ")
-                            toUpdate = float(f"0.{player[1]%6}")
-                            if player[1]%6 == 0:
-                                toUpdate = 1
-                            try:
-                                overs[bowlerName] = [overs[bowlerName][0]+overRuns,overs[bowlerName][1]+toUpdate]
-                            except:
-                                overs[bowlerName] = [overRuns,toUpdate]
-                            break
-                        else:
-                            print("ONE LIFE GONE")
-                            print(f"life remaining: {playerLifes}")
-                            player[1]+=1
-                            choices[0]+=1
-                            bowls+=1
-                            tempIs = False
-                            print(f"Runs and Bowls: {player}\nPlayer Wheel: {choices}")
-                    else:
-                        player[0]+=playerChoice
+                playerApproach1.remove(playerChoice)
+                if userChoice == playerChoice:
+                    playerLifes-=1
+                    if playerLifes==0:
+                        print(f"Player out!\nPlayer runs and bowls{player}\nPlayer boundaries: {choices}")  
+                        tempIs = False
+                        playerLifes = round(playerBowls/6)
+                        newWicket = True
+                        aCtual[player[0]] = player[1]
                         player[1]+=1
                         bowls+=1
-                        choices[playerChoice]+=1
-                        overRuns+=playerChoice
+
+                    else:
+                        print("ONE LIFE GONE")
+                        print(f"life remaining: {playerLifes}")
+                        player[1]+=1
+                        choices[0]+=1
+                        bowls+=1
                         tempIs = False
                         print(f"Runs and Bowls: {player}\nPlayer Wheel: {choices}")
-        except:
-            break
+                else:
+                    player[0]+=playerChoice
+                    player[1]+=1
+                    bowls+=1
+                    choices[playerChoice]+=1
+                    overRuns+=playerChoice
+                    tempIs = False
+                    print(f"Runs and Bowls: {player}\nPlayer Wheel: {choices}")
 
 print(aCtual)
-# hey
 print(overs)
